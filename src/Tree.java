@@ -21,20 +21,23 @@ public class Tree
 
     public boolean insert(Comparable key){
         // Corner case: zero element insertion
-        if (root == null){
+//        if (root == null){
+//            root = new Node();
+//            root.addKey(key);
+//            return true;
+//        }
+//
+//        if (find(root, key) != null){
+//            return false;
+//        }
+//
+//        Node targetLeaf = leafNode(root, key);
+//        targetLeaf.addKey(key);
+//
+//        return true;
+        if (root == null)
             root = new Node();
-            root.addKey(key);
-            return true;
-        }
-
-        if (find(root, key) != null){
-            return false;
-        }
-
-        Node targetLeaf = leafNode(root, key);
-        targetLeaf.addKey(key);
-
-        return true;
+        return root.insert(key);
     }
 
      private Node leafNode(Node root, Comparable  key){
@@ -69,19 +72,17 @@ public class Tree
     public int size(int key){
         // It will involve 2 parts 1. find the existing nodee
         // 2. Get the subtree size.
+        return root.size(key);
 
-        Node currentNode = find(root, key);
-
-        if (currentNode == null)
-            return 0;
-
-        return subtreeSize(root);
     }
-    public int subtreeSize(Node root){
+    public int subtreeSize(Node root, int sizeCount){
         if (root == null)
             return 0;
 
-        return (root.size() + subtreeSize(root.kthChild(1)) + subtreeSize(root.kthChild(2)) + subtreeSize(root.kthChild(3)));
+        for (Node child : root.children)
+            sizeCount += subtreeSize(child , sizeCount);
+
+        return sizeCount + root.keys.size();
     }
 
     //Todo: Fix this method
@@ -101,33 +102,58 @@ public class Tree
     //Todo: Modify this private class have to make it at least 2
     class Node
     {
-        public ArrayList<Comparable> keys;
-        public ArrayList<Node> children;
+        private final int keyNum = 2;
+        private final int childNum = 3;
+        private ArrayList<Comparable> keys;
+        private ArrayList<Node> children;
 
         public Node(){
+
             keys = new ArrayList<Comparable>();
             children = new ArrayList<Node>();
         }
 
-        public void addKey(Comparable key){
-            keys.add(key);
-            Collections.sort(keys);
-            if (keys.size() == 3){
-                split();
+        public boolean insert(Comparable key){
+            if (keys.contains(key))
+                return false;
+
+            if (!isLeaf()){
+                int targetChildIndex = 0;
+                for (Comparable curKey : keys){
+                    if (curKey.compareTo(key) < 0)
+                        targetChildIndex  ++;
+                }
+                 return (children.get(targetChildIndex).insert(key));
             }
+            else{
+                keys.add(key);
+                if (keys.size() >= keyNum){
+                    split(this);
+                }
+
+            }
+
+
+            return true;
+        }
+
+        public void split(Node parent){
+            return;
         }
 
         public boolean contains(Comparable key){
             return keys.contains(key);
         }
 
-        public int size(){
-            return keys.size();
+        public int size(int key){
+            Node found = find(this, key);
+
+            if (found == null)
+                return 0;
+            return subtreeSize(found, 0);
         }
 
-        public void split(){
-            return;
-        }
+
 
         public boolean isLeaf(){
             return children.size() == 0;
