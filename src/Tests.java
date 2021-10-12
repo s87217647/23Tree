@@ -3,10 +3,10 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 
-public class Testing
+public class Tests
 {
 
-    @Test
+    @org.junit.Test
     public void singleNodeTree()
     {
         // Don't know if should test sections of nodes before testing insertion
@@ -40,7 +40,7 @@ public class Testing
 
     }
 
-    @Test
+    @org.junit.Test
     public void oneSplitLeft()
     {
         Tree t = new Tree();
@@ -57,6 +57,7 @@ public class Testing
         assertEquals(0, t.size(0));
         assertEquals(0, t.size(3));
 
+        // Todo: implement get()
         assertEquals(1, t.get(0));
         assertEquals(9, t.get(1));
         assertEquals(15, t.get(2));
@@ -64,7 +65,24 @@ public class Testing
         assertEquals(3,t.size());
     }
 
-    @Test
+    @org.junit.Test
+    public void insertionTest(){
+        Tree t = new Tree();
+        int[] nums = {5,10,20,8,7,15,30,11};
+
+        for (int i = 0; i < nums.length; i++) {
+            t.insert(nums[i]);
+        }
+
+
+
+        System.out.println("This is the end, hold your breathe and count to ten");
+
+
+
+    }
+
+    @org.junit.Test
     public void oneSplitRight()
     {
         Tree t = new Tree();
@@ -89,7 +107,7 @@ public class Testing
 
     }
 
-    @Test
+    @org.junit.Test
     public void oneSplitMiddle()
     {
         Tree t = new Tree();
@@ -115,7 +133,7 @@ public class Testing
     }
 
 
-    @Test
+    @org.junit.Test
     public void testDuplicates()
     {
         Tree t = new Tree();

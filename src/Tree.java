@@ -1,3 +1,5 @@
+import javax.swing.plaf.ComponentInputMapUIResource;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -8,6 +10,10 @@ import java.util.Collections;
  */
 public class Tree
 {
+
+    public final int childrenNum = 3;
+    public final int keysNum = 2;
+
     private Node root;
     //private int size;
 
@@ -19,76 +25,26 @@ public class Tree
         root = null;
     }
 
-    public boolean insert(Comparable key){
-        // Corner case: zero element insertion
+    public boolean insert(int key){
         if (root == null){
-            root = new Node();
-            root.addKey(key);
+            root = new Node(key);
             return true;
         }
-
-        if (find(root, key) != null){
-            return false;
-        }
-
-        Node targetLeaf = leafNode(root, key);
-        targetLeaf.addKey(key);
-
-        return true;
+        return root.insert(key);
     }
 
-     private Node leafNode(Node root, Comparable  key){
-        if (root == null){
-            return null;
-        }
-
-        if (root.isLeaf())
-            return root;
-        if (key.compareTo(root.kthKey(1)) < 0){ // ----First Section----|----|-----
-            return leafNode(root.kthChild(1), key);
-        }
-        else if (key.compareTo(root.kthKey(2)) > 0) {// -----|-----|----3rd  Section-----
-            return leafNode(root.kthChild(3),key);
-        }
-        else return leafNode(root.kthChild(2), key);
-     }
-
-     private Node find(Node root, Comparable key){
-        if(root.contains(key))
-            return root;
-
-        for(Node child : root.children)
-            find(child, key);
-
-         return null;
-     }
-
-    public int size(){return 0;} // Or , traverse the entire tree to find the size?
+    public int size(){return root.size();}
 
 
     public int size(int key){
-        // It will involve 2 parts 1. find the existing nodee
-        // 2. Get the subtree size.
-
-        Node currentNode = find(root, key);
-
-        if (currentNode == null)
-            return 0;
-
-        return subtreeSize(root);
-    }
-    public int subtreeSize(Node root){
-        if (root == null)
-            return 0;
-
-        return (root.size() + subtreeSize(root.kthChild(1)) + subtreeSize(root.kthChild(2)) + subtreeSize(root.kthChild(3)));
+        return root.size(key);
     }
 
-    //Todo: Fix this method
+    //Get back to this after fully test the method
     public Comparable get(int x){
-        // this should be base casse
-        return root.keys.get(x);
+        //After you finish above ones, come back for this.
 
+        return root.get(x);
     }
 
 
@@ -101,51 +57,179 @@ public class Tree
     //Todo: Modify this private class have to make it at least 2
     class Node
     {
-        public ArrayList<Comparable> keys;
+        public Node parent;
+        public ArrayList<Integer> keys;
         public ArrayList<Node> children;
 
+
         public Node(){
-            keys = new ArrayList<Comparable>();
+            parent = null;
+            keys = new ArrayList<Integer>();
             children = new ArrayList<Node>();
         }
 
-        public void addKey(Comparable key){
+        public Node(int key){
+            parent = null;
+            keys = new ArrayList<Integer>();
+            children = new ArrayList<Node>();
+            keys.add(key);
+        }
+
+        public boolean insert(int key){
+            if (keys.contains(key)){
+                return false;
+            }
+            // not leaf
+            if (!isLeaf()){
+                int targetChild = 0;
+                for(int localKey: keys) {
+                    if (key > localKey) {
+                        targetChild++;
+                    }
+                }
+                return children.get(targetChild).insert(key);
+
+            }
+
+            // leaf
             keys.add(key);
             Collections.sort(keys);
-            if (keys.size() == 3){
-                split();
-            }
+            // Wut about split
+            if (keys.size() > keysNum)
+                this.split();
+            return true;
         }
 
-        public boolean contains(Comparable key){
-            return keys.contains(key);
-        }
 
-        public int size(){
-            return keys.size();
-        }
+//        private void split(){
+//            if(isLeaf()){
+//                if(parent == null){
+//                    parent = new Node(keys.get(1));
+//                }
+//                else{
+//                    parent.keys.add(keys.get(1));
+//                    Collections.sort(parent.keys);
+//                }
+//
+//
+//                parent.children.add(new Node(keys.get(2)));
+//                keys.remove(2);
+//                keys.remove(1);
+//
+//                if (parent.keys.size() > keysNum){
+//                    parent.split();
+//                }
+//
+//            }
+//            else{
+//                Node left = new Node(keys.get(0));
+//                Node right = new Node(keys.get(2));
+//
+//
+//                // abstraction and make it a loop
+//
+//                left.children.add(children.get(0));
+//                left.children.add(children.get(1));
+//                children.get(0).parent = left;
+//                children.get(1).parent = left;
+//
+//
+//                right.children.add(children.get(2));
+//                right.children.add(children.get(3));
+//                children.get(2).parent = right;
+//                children.get(3).parent = right;
+//
+//                if(parent == null){
+//                    parent = new Node(keys.get(1));
+//                }
+//                else{
+//                    parent.keys.add(keys.get(1));
+//                }
+//                parent.children.add(left);
+//                parent.children.add(right);
+//                right.parent = parent;
+//                left.parent = parent;
+//
+//            }
+//
+//        }
 
         public void split(){
+            if (parent == null){
+                parent = new Node();
+                root = parent;
+            }
+            parent.addKey(keys.get(1));
+            keys.remove(1); // This level I have two key left
+
+            Node newLeft = new Node(keys.get(0));
+            Node newRight = new Node(keys.get(1));
+            parent.addChild(newLeft);
+            parent.addChild(newRight);
+
+            if (!isLeaf()){
+                newLeft.addChild(children.get(0));
+                newLeft.addChild(children.get(1));
+                newRight.addChild(children.get(2));
+                newRight.addChild(children.get(3));
+
+            }
+            if (parent.keys.size() > keysNum)
+                parent.split();
+        }
+
+        private void addChild(Node child){
+            children.add(child);
+            child.parent = this;
+        }
+        private void addChild(ArrayList<Node> children){
             return;
+        }
+
+        private void addKey(int key){
+            keys.add(key);
+            Collections.sort(keys);
         }
 
         public boolean isLeaf(){
             return children.size() == 0;
         }
 
-        public Comparable kthKey(int k){
-            return keys.get(k - 1);
+        public int size(){
+            if (isLeaf())
+                return keys.size();
+
+            int count = keys.size();
+            for (Node child: children)
+                count += child.size();
+
+            return count;
         }
 
-        public Node kthChild(int k) {
-            if (k <= children.size())
-                return children.get(k - 1);
-            else
-                return null;
+        public int size( int key){
+            if (keys.contains(key)){
+                return this.size();
+            }
+
+            if(!isLeaf()) {
+                int targetChild = 0;
+                for (int localKey : keys) {
+                    if (key > localKey) {
+                        targetChild++;
+                    }
+                }
+
+                return children.get(targetChild).size(key);
+            }
+
+            return 0;
         }
 
-
+        public int get(int x){
+            return 0;
         }
+
+    }
 }
 
 
