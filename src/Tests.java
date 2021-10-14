@@ -2,6 +2,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 
 public class Tests
 {
@@ -66,13 +68,45 @@ public class Tests
     }
 
     @org.junit.Test
-    public void insertionTest(){
+    public void SwiftsUltimateTesting(){
         Tree t = new Tree();
         int[] nums = {5,10,20,8,7,15,30,11};
 
         for (int i = 0; i < nums.length; i++) {
             t.insert(nums[i]);
         }
+        //size, size(int) testing.
+        assertEquals(t.size(), 8);
+        assertEquals(t.size(10), 8);
+
+
+        assertEquals(t.get(0), 5);
+        assertEquals(t.get(2), 8);
+        assertEquals(t.get(1), 7);
+
+        for (int i = 0; i < nums.length; i++) {
+            System.out.println(t.get(i));
+        }
+
+
+
+
+        Arrays.sort(nums);
+        for (int i = 0; i < nums.length; i++) {
+            assertEquals(t.get(i), nums[i]);
+        }
+
+        t = new Tree();
+        nums = new int[] {2,5,6,9,4,10,1};
+        for (int i = 0; i < nums.length; i++) {
+            t.insert(nums[i]);
+        }
+        t = new Tree();
+        nums = new int[] {10,3,2,5,7,9,8,6,17,27};
+        for (int i = 0; i < nums.length; i++) {
+            t.insert(nums[i]);
+        }
+
 
 
 
